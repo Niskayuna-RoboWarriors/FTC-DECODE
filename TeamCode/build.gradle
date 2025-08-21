@@ -10,10 +10,23 @@
 
 
 // Custom definitions may go here
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://repo.dairy.foundation/releases"
+        }
+    }
+    dependencies {
+        classpath "dev.frozenmilk:Load:0.2.4"
+    }
+}
 
 // Include common definitions from above.
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
+apply plugin: 'kotlin-android'
+apply plugin: 'dev.frozenmilk.sinister.sloth.load'
 
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
@@ -25,6 +38,7 @@ android {
 
 repositories {
     maven { url = "https://repo.dairy.foundation/releases" }
+    maven { url = "https://repo.dairy.foundation/snapshots" }
     maven { url = 'https://maven.brott.dev/' }
     maven { url= 'https://maven.pedropathing.com/' }
 
@@ -33,10 +47,12 @@ repositories {
 dependencies {
     implementation project(':FtcRobotController')
 
-    implementation 'dev.frozenmilk.dairy:Core:2.2.3'
+    implementation 'dev.frozenmilk.dairy:Core:2.2.4'
     implementation 'dev.frozenmilk.mercurial:Mercurial:1.0.3'
-    implementation 'dev.frozenmilk.dairy:Util:1.1.1'
 
-    implementation 'com.pedropathing:pedro:1.0.9'
-    implementation 'com.acmerobotics.dashboard:dashboard:0.4.16'
+    implementation 'com.acmerobotics.slothboard:dashboard:0.2.4+0.4.17'
+
+    implementation('com.pedropathing:pedro:1.0.9') {
+        exclude group: "com.acmerobotics.dashboard"
+    }
 }

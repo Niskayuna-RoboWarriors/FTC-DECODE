@@ -24,13 +24,13 @@ import dev.frozenmilk.util.cell.RefCell
 @TeleOp(name = "Competition")
 class Competition : OpMode() {
     override fun init() {
-        val driver = BoundGamepad(SDKGamepad(gamepad1))
+        val driver: BoundGamepad = Mercurial.gamepad1
         // bindings to driver gamepad
         driver.a
             .onTrue(Lambda("hi"))
             .onFalse(Lambda("bye"))
 
-        val operator = BoundGamepad(SDKGamepad(gamepad2))
+        val operator: BoundGamepad = Mercurial.gamepad2
         //bindings to operator gamepad
         operator.a
             .whileTrue(Lambda("extend linear slide"))
