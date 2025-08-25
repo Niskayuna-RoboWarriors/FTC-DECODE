@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.tele
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import dev.frozenmilk.dairy.core.util.supplier.logical.EnhancedBooleanSupplier
-import dev.frozenmilk.dairy.pasteurized.SDKGamepad
 import dev.frozenmilk.mercurial.Mercurial
 import dev.frozenmilk.mercurial.bindings.BoundBooleanSupplier
 import dev.frozenmilk.mercurial.bindings.BoundDoubleSupplier
