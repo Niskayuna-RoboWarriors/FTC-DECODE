@@ -46,9 +46,11 @@ android {
 }
 
 repositories {
-    maven { url = "https://repo.dairy.foundation/releases" }
-    maven { url = "https://repo.dairy.foundation/snapshots" }
-    maven { url = 'https://maven.brott.dev/' }
+    // maven { url = "https://repo.dairy.foundation/releases" }
+    // maven { url = "https://repo.dairy.foundation/snapshots" }
+    // maven { url = 'https://maven.brott.dev/' }
+
+    // included inside build.dependencies.gradle
     maven { url= 'https://maven.pedropathing.com/' }
 
 }
@@ -56,15 +58,7 @@ repositories {
 dependencies {
     implementation project(':FtcRobotController')
 
-    implementation 'dev.frozenmilk.dairy:Core:2.2.4'
-    implementation 'dev.frozenmilk.mercurial:Mercurial:1.0.3'
-
-    implementation 'com.acmerobotics.slothboard:dashboard:0.2.4+0.4.17'
-
-    implementation('com.pedropathing:ftc:2.0.1') {
-        exclude group: "com.acmerobotics.dashboard"
-    }
-    implementation('com.pedropathing:telemetry:0.0.6') {
-        exclude group: "com.acmerobotics.dashboard"
-    }
+    // included inside build.dependencies.gradle
+    // implementation('com.pedropathing:ftc:2.0.2')
+    // implementation('com.pedropathing:telemetry:0.0.6')
 }
