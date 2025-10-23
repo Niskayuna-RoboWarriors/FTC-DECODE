@@ -16,23 +16,23 @@ public class detectTag extends LinearOpMode {
     private VisionPortal visionPortal;
     private AprilTagProcessor aprilTag;
 
-    // --- CONFIGURABLE TARGET TAG ID ---
-    private final int targetTagId = 1;  // <-- set this to the ID you want to follow
+    //target tag id
+    private final int targetTagId = 22;
 
-    // Camera horizontal center in pixels (approx for 640px width)
+    //Camera horizontal center in pixels
     private final double cameraCenterX = 640 / 2.0;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
-        // --- Create AprilTag Processor ---
+        // Create AprilTag Processor
         aprilTag = new AprilTagProcessor.Builder()
                 .setDrawAxes(true)
                 .setDrawCubeProjection(true)
                 .setDrawTagOutline(true)
                 .build();
 
-        // --- Create Vision Portal with webcam and AprilTag processor ---
+        //Create Vision Portal with webcam and AprilTag processor
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                 .addProcessor(aprilTag)
@@ -56,19 +56,19 @@ public class detectTag extends LinearOpMode {
                     telemetry.addLine(String.format("Tag ID: %d", tag.id));
                     telemetry.addLine(String.format("Center (%.1f, %.1f)", tag.center.x, tag.center.y));
 
-                    // --- TRACK TARGET TAG ---
+                    // TRACK TARGET TAG
                     if (tag.id == targetTagId) {
                         telemetry.addLine("Target tag detected! Turning to follow...");
 
-                        // Decide which way to turn
+                        //decide which way to turn
                         if (tag.center.x < cameraCenterX) {
-                            turnLeft();   // your custom rotation code goes here
+                            //
                         } else {
-                            turnRight();  // your custom rotation code goes here
+                            //
                         }
                     }
 
-                    // Optional: show pose info
+                    // show pose info
                     if (tag.metadata != null) {
                         telemetry.addData("Distance (in)", "%.1f", tag.ftcPose.range);
                         telemetry.addData("Bearing (deg)", "%.1f", tag.ftcPose.bearing);
@@ -83,14 +83,5 @@ public class detectTag extends LinearOpMode {
         }
 
         visionPortal.close();
-    }
-
-    // --- ROTATION PLACEHOLDERS ---
-    private void turnLeft() {
-        // TODO: insert your robot rotation code here
-    }
-
-    private void turnRight() {
-        // TODO: insert your robot rotation code here
     }
 }

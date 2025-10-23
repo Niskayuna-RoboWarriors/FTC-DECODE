@@ -27,10 +27,10 @@ public class computerVision extends LinearOpMode {
     private VisionPortal visionPortal;
     private AprilTagProcessor aprilTag;
 
-    // --- CONFIGURABLE TARGET TAG ID ---
-    private final int targetTagId = 22;  // <-- set this to the ID you want to follow
+    // change target tagid
+    private final int targetTagId = 22;
 
-    // Camera horizontal center in pixels (approx for 640px width)
+    // Camera horizontal center in pixels
     private final double cameraCenterX = 640 / 2.0;
 
     @Override
@@ -54,14 +54,14 @@ public class computerVision extends LinearOpMode {
         frontLeft.setDirection(DcMotorEx.Direction.REVERSE);
         backLeft.setDirection(DcMotorEx.Direction.REVERSE);
 
-        // --- Create AprilTag Processor ---
+        //Create AprilTag Processor
         aprilTag = new AprilTagProcessor.Builder()
                 .setDrawAxes(true)
                 .setDrawCubeProjection(true)
                 .setDrawTagOutline(true)
                 .build();
 
-        // --- Create Vision Portal with webcam and AprilTag processor ---
+        //Create Vision Portal with webcam and AprilTag processor
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Camera 1"))
                 .addProcessor(aprilTag)
@@ -85,11 +85,11 @@ public class computerVision extends LinearOpMode {
                     telemetry.addLine(String.format("Tag ID: %d", tag.id));
                     telemetry.addLine(String.format("Center (%.1f, %.1f)", tag.center.x, tag.center.y));
 
-                    // --- TRACK TARGET TAG ---
+                    //TRACK TARGET TAG
                     if (tag.id == targetTagId) {
                         telemetry.addLine("Target tag detected! Turning to follow...");
 
-                        // Decide which way to turn
+                        //choose which way to turn
                         if (tag.center.x < cameraCenterX) {
                             telemetry.addLine("Aligning Robot Left");
                             telemetry.addData("CameraCenter:", "", cameraCenterX);

@@ -25,17 +25,17 @@ public class alignWithAprilTag extends LinearOpMode {
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
 
-    // Desired tag ID
+    // chaneg tag ID
     private static final int TARGET_TAG_ID = 22;
 
-    // Target distance from tag in inches
+    //Target distance from tag in inches
     private static final double TARGET_DISTANCE_INCHES = 12.0;
     private static final double DISTANCE_TOLERANCE_INCHES = 1.0;
     private static final double CENTER_TOLERANCE_INCHES = 1.0;
 
     @Override
     public void runOpMode() {
-        // --- Initialize hardware ---
+        //init hardware
         frontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
         frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
         backLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
@@ -55,13 +55,13 @@ public class alignWithAprilTag extends LinearOpMode {
                         RevHubOrientationOnRobot.LogoFacingDirection.UP,
                         RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
 
-        // --- Initialize AprilTag Processor ---
+        // inti AprilTag Processor
         aprilTag = new AprilTagProcessor.Builder()
                 .setDrawTagID(true)
                 .setDrawTagOutline(true)
                 .build();
 
-        // --- Create VisionPortal with webcam ---
+        //create VisionPortal with webcam
         WebcamName webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
         visionPortal = new VisionPortal.Builder()
                 .setCamera(webcamName)
@@ -101,7 +101,7 @@ public class alignWithAprilTag extends LinearOpMode {
                     double forwardPower = 0;
                     double turnPower = 0;
 
-                    // --- Maintain 12 inches distance ---
+                    // Maintain 12 inches distance
                     if (Math.abs(distanceInches - TARGET_DISTANCE_INCHES) > DISTANCE_TOLERANCE_INCHES) {
                         if (distanceInches > TARGET_DISTANCE_INCHES)
                             forwardPower = 0.25; // move forward
@@ -109,12 +109,12 @@ public class alignWithAprilTag extends LinearOpMode {
                             forwardPower = -0.25; // move backward
                     }
 
-                    // --- Rotate to center ---
+                    //Rotate to center (y-axis)
                     if (Math.abs(xOffsetInches) > CENTER_TOLERANCE_INCHES) {
                         if (xOffsetInches > 0)
-                            turnPower = 0.2; // tag is to the right → turn right
+                            turnPower = 0.2; //tag is to the right --> turn right
                         else
-                            turnPower = -0.2; // tag is to the left → turn left
+                            turnPower = -0.2; //tag is to the left --> turn left
                     }
 
                     drive(forwardPower, turnPower);
@@ -133,7 +133,7 @@ public class alignWithAprilTag extends LinearOpMode {
         visionPortal.close();
     }
 
-    // --- Simple tank-like drive for forward + turning motion ---
+    // drive and turn functions
     private void drive(double forward, double turn) {
         double leftPower = forward + turn;
         double rightPower = forward - turn;
