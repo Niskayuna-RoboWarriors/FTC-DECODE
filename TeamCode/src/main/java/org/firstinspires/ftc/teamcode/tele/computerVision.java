@@ -4,146 +4,143 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvWebcam;
-import org.openftc.easyopencv.OpenCvPipeline;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
-import org.openftc.apriltag.AprilTagDetector;      // direct detector class (OpenFTC april tag wrapper)
-import org.openftc.apriltag.AprilTagDetection;    // detection results
+import java.util.List;
 
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc;
+@TeleOp(name = "Rotating AprilTag Tracker", group = "Vision")
+public class computerVision extends LinearOpMode {
+    IMU imu;
 
-import java.util.ArrayList;
+    private VisionPortal visionPortal;
+    private AprilTagProcessor aprilTag;
 
-@TeleOp
-public class AprilTagDirectTest extends LinearOpMode {
-    OpenCvWebcam webcam;
-    AprilTagDirectPipeline pipeline;
+    // --- CONFIGURABLE TARGET TAG ID ---
+    private final int targetTagId = 22;  // <-- set this to the ID you want to follow
 
-    // camera intrinsics (example values — calibrate for best pose accuracy)
-    double fx = 578.272;
-    double fy = 578.272;
-    double cx = 402.145;
-    double cy = 221.506;
-    double tagSizeMeters = 0.166;
+    // Camera horizontal center in pixels (approx for 640px width)
+    private final double cameraCenterX = 640 / 2.0;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        int cameraMonitorViewId = hardwareMap.appContext.getResources()
-                .getIdentifier("cameraMonitorViewId","id",hardwareMap.appContext.getPackageName());
 
-        webcam = OpenCvCameraFactory.getInstance()
-                .createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        DcMotorEx frontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
+        DcMotorEx frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
+        DcMotorEx backLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
+        DcMotorEx backRight = hardwareMap.get(DcMotorEx.class, "backRight");
 
-        pipeline = new AprilTagDirectPipeline(tagSizeMeters, fx, fy, cx, cy);
-        webcam.setPipeline(pipeline);
+        frontLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-            @Override public void onOpened() {
-                webcam.startStreaming(800, 448, OpenCvCameraRotation.UPRIGHT);
-            }
-            @Override public void onError(int errorCode) {
-                telemetry.addData("Camera error", errorCode);
-                telemetry.update();
-            }
-        });
+        frontLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        frontRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        backLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        backRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
-        telemetry.addLine("Init done - waiting");
+        frontLeft.setDirection(DcMotorEx.Direction.REVERSE);
+        backLeft.setDirection(DcMotorEx.Direction.REVERSE);
+
+        // --- Create AprilTag Processor ---
+        aprilTag = new AprilTagProcessor.Builder()
+                .setDrawAxes(true)
+                .setDrawCubeProjection(true)
+                .setDrawTagOutline(true)
+                .build();
+
+        // --- Create Vision Portal with webcam and AprilTag processor ---
+        visionPortal = new VisionPortal.Builder()
+                .setCamera(hardwareMap.get(WebcamName.class, "Camera 1"))
+                .addProcessor(aprilTag)
+                .enableLiveView(true)
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                .setAutoStopLiveView(false)
+                .build();
+
+        telemetry.addLine("AprilTag Vision Ready.");
         telemetry.update();
+
         waitForStart();
 
         while (opModeIsActive()) {
-            // Get the latest detections (thread-safe view)
-            ArrayList<AprilTagDetection> detections = pipeline.getLatestDetections();
+            List<AprilTagDetection> detections = aprilTag.getDetections();
 
-            if (detections != null && detections.size() > 0) {
-                telemetry.addData("Num tags", detections.size());
-                for (AprilTagDetection d : detections) {
-                    telemetry.addData("Tag ID", d.id);
-                    // if pose is available on the detection you can also print translation/rotation fields:
-                    // telemetry.addData("pose x", d.pose.x); etc.
+            telemetry.addData("Detected Tags", detections.size());
+
+            if (detections != null) {// check for tag ids here
+                for (AprilTagDetection tag : detections) {
+                    telemetry.addLine(String.format("Tag ID: %d", tag.id));
+                    telemetry.addLine(String.format("Center (%.1f, %.1f)", tag.center.x, tag.center.y));
+
+                    // --- TRACK TARGET TAG ---
+                    if (tag.id == targetTagId) {
+                        telemetry.addLine("Target tag detected! Turning to follow...");
+
+                        // Decide which way to turn
+                        if (tag.center.x < cameraCenterX) {
+                            telemetry.addLine("Aligning Robot Left");
+                            telemetry.addData("CameraCenter:", "", cameraCenterX);
+                            telemetry.addData("TagCenter:", "", tag.center.x);
+                            turnLeft(0.01, frontLeft, frontRight, backLeft, backRight);   // your custom rotation code goes here
+
+
+                        } else {
+                            telemetry.addLine("Aligning Robot Right");
+                            telemetry.addData("CameraCenter:", "", cameraCenterX);
+                            telemetry.addData("TagCenter:", "", tag.center.x);
+                            turnRight(0.01, frontLeft, frontRight, backLeft, backRight);  // your custom rotation code goes here
+                        }
+                    }
+
+                    // show pose info
+                    if (tag.metadata != null) {
+                        telemetry.addData("Distance (in)", "%.1f", tag.ftcPose.range);
+                        telemetry.addData("Bearing (deg)", "%.1f", tag.ftcPose.bearing);
+                        telemetry.addData("Yaw (deg)", "%.1f", tag.ftcPose.yaw);
+                    }
+                    telemetry.addLine("-----------------------");
                 }
-            } else {
-                telemetry.addData("Num tags", 0);
             }
 
             telemetry.update();
             sleep(50);
         }
+
+        visionPortal.close();
     }
 
-    /**
-     * Pipeline that converts to gray and calls the AprilTagDetector directly.
-     * Keeps a thread-safe copy of the last detections for the OpMode to read.
-     */
-    public static class AprilTagDirectPipeline extends OpenCvPipeline {
-        private final AprilTagDetector detector;
-        private final double tagSize, fx, fy, cx, cy;
-
-        // thread-safe reference to last detections
-        private volatile ArrayList<AprilTagDetection> latestDetections = new ArrayList<>();
-
-        // temporary mats reused to avoid allocations
-        private final Mat gray = new Mat();
-
-        public AprilTagDirectPipeline(double tagSizeMeters, double fx, double fy, double cx, double cy) {
-            this.tagSize = tagSizeMeters;
-            this.fx = fx;
-            this.fy = fy;
-            this.cx = cx;
-            this.cy = cy;
-
-            // Create detector and set the tag family to detect.
-            // "tag36h11" is the most common family used by most AprilTag generators.
-            detector = new AprilTagDetector();
-            detector.addFamily("tag36h11");   // add the family you need
-
-            // If the wrapper supports setting camera intrinsics/pose estimation parameters,
-            // set them here if required by the detector (some wrappers accept them at detect time).
-            // For the OpenFTC wrapper, pose estimation fields are computed into the detection if
-            // you pass tag size and intrinsics to the detector/detect call (see detect call below).
-        }
-
-        @Override
-        public Mat processFrame(Mat input) {
-            // convert to gray (AprilTag detectors expect grayscale)
-            if (input.channels() == 3) {
-                Imgproc.cvtColor(input, gray, Imgproc.COLOR_RGB2GRAY);
-            } else {
-                input.copyTo(gray);
-            }
-
-            // run detection. The exact detector.detect(...) signature varies by wrapper.
-            // The OpenFTC java wrapper provides detect(gray, tagSize, fx, fy, cx, cy) typically.
-            // We'll attempt to call that form — if your version differs, call the appropriate overload.
-            AprilTagDetection[] detections = detector.detect(gray, tagSize, fx, fy, cx, cy);
-
-            // store a thread-safe copy for the opmode
-            ArrayList<AprilTagDetection> list = new ArrayList<>();
-            if (detections != null) {
-                for (AprilTagDetection d : detections) list.add(d);
-            }
-            latestDetections = list; // volatile write
-
-            // Optionally annotate the frame (draw boxes/ids) - for simplicity return input unmodified.
-            // If you want annotations, draw on `input` using OpenCV drawing functions.
-
-            return input;
-        }
-
-        /** Returns the most recently detected tags (may be empty). */
-        public ArrayList<AprilTagDetection> getLatestDetections() {
-            return latestDetections;
-        }
-
-        @Override
-        public void onViewportTapped() {
-            // optional: react to user tapping the camera monitor
-        }
+    //ROTATION
+    private void turnLeft(double power, DcMotorEx frontLeft, DcMotorEx frontRight, DcMotorEx backLeft, DcMotorEx backRight) {
+        frontLeft.setPower(-power);
+        backLeft.setPower(-power);
+        frontRight.setPower(power);
+        backRight.setPower(power);
     }
+    private void turnRight(double power, DcMotorEx frontLeft, DcMotorEx frontRight, DcMotorEx backLeft, DcMotorEx backRight) {
+        frontLeft.setPower(power);
+        backLeft.setPower(power);
+        frontRight.setPower(-power);
+        backRight.setPower(-power);
+    }
+    private void stopMotors(DcMotorEx frontLeft, DcMotorEx frontRight,
+                            DcMotorEx backLeft, DcMotorEx backRight) {
+        frontLeft.setPower(0);
+        backLeft.setPower(0);
+        frontRight.setPower(0);
+        backRight.setPower(0);
+    }
+
 }
