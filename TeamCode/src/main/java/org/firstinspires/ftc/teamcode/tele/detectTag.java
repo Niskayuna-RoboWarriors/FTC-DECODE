@@ -34,7 +34,7 @@ public class detectTag extends LinearOpMode {
 
         //Create Vision Portal with webcam and AprilTag processor
         visionPortal = new VisionPortal.Builder()
-                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+                .setCamera(hardwareMap.get(WebcamName.class, "Camera-1"))
                 .addProcessor(aprilTag)
                 .enableLiveView(true)
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)

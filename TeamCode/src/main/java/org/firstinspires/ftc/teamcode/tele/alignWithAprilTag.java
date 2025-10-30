@@ -62,11 +62,12 @@ public class alignWithAprilTag extends LinearOpMode {
                 .build();
 
         //create VisionPortal with webcam
-        WebcamName webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
         visionPortal = new VisionPortal.Builder()
-                .setCamera(webcamName)
+                .setCamera(hardwareMap.get(WebcamName.class, "Camera-1"))
                 .addProcessor(aprilTag)
                 .enableLiveView(true)
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                .setAutoStopLiveView(false)
                 .build();
 
         telemetry.addLine("AprilTag Auto-Follow Initialized");
