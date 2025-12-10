@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
+import static org.firstinspires.ftc.teamcode.pedroPathing.Constants.pathConstraints;
 import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.changes;
 import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.drawOnlyCurrent;
 import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.draw;
@@ -16,6 +17,9 @@ import com.bylazar.field.Style;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.follower.FollowerConstants;
+import com.pedropathing.ftc.FollowerBuilder;
+import com.pedropathing.ftc.drivetrains.MecanumConstants;
 import com.pedropathing.geometry.*;
 import com.pedropathing.math.*;
 import com.pedropathing.paths.*;
@@ -23,6 +27,8 @@ import com.pedropathing.telemetry.SelectableOpMode;
 import com.pedropathing.util.*;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +52,24 @@ public class Tuning extends SelectableOpMode {
 
     @IgnoreConfigurable
     static ArrayList<String> changes = new ArrayList<>();
+    public static FollowerConstants followerConstants = new FollowerConstants()
+            .mass(5);
+    public static MecanumConstants driveConstants = new MecanumConstants()
+            .maxPower(1)
+            .rightFrontMotorName("frontRight")
+            .rightRearMotorName("backRight")
+            .leftRearMotorName("backLeft")
+            .leftFrontMotorName("backRight")
+            .leftFrontMotorDirection(DcMotorEx.Direction.REVERSE)
+            .leftRearMotorDirection(DcMotorEx.Direction.REVERSE)
+            .rightFrontMotorDirection(DcMotorEx.Direction.FORWARD)
+            .rightRearMotorDirection(DcMotorEx.Direction.FORWARD);
+    public static Follower createFollower(HardwareMap hardwareMap) {
+        return new FollowerBuilder(followerConstants, hardwareMap)
+                .pathConstraints(pathConstraints)
+                .mecanumDrivetrain(driveConstants)
+                .build();
+    }
 
     public Tuning() {
         super("Select a Tuning OpMode", s -> {

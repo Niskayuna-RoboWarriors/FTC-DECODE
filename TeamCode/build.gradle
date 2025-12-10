@@ -57,8 +57,4 @@ repositories {
 
 dependencies {
     implementation project(':FtcRobotController')
-
-    // included inside build.dependencies.gradle
-    // implementation('com.pedropathing:ftc:2.0.2')
-    // implementation('com.pedropathing:telemetry:0.0.6')
 }

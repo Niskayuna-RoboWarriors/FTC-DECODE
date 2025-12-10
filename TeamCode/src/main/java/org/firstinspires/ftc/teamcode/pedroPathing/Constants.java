@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
@@ -26,12 +28,11 @@ public class Constants {
             .leftRearMotorDirection(DcMotorEx.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorEx.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorEx.Direction.FORWARD);
-
     public static TwoWheelConstants localizerConstants = new TwoWheelConstants()
-            .forwardEncoder_HardwareMapName("leftFront")
-            .strafeEncoder_HardwareMapName("rightRear")
-            .forwardPodY(5) // inches
-            .strafePodX(5) // inches
+            .forwardEncoder_HardwareMapName("intake")
+            .strafeEncoder_HardwareMapName("strafeIntake")
+            .forwardPodY(6.2) // inches
+            .strafePodX(7) // inches
             // .forwardEncoderDirection(Encoder.REVERSE)
             // .strafeEncoderDirection(Encoder.REVERSE)
             .IMU_HardwareMapName("imu")
@@ -44,7 +45,7 @@ public class Constants {
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
-                // .twoWheelLocalizer(localizerConstants)
+                .twoWheelLocalizer(localizerConstants)
                 .pathConstraints(pathConstraints)
                 .mecanumDrivetrain(driveConstants)
                 .build();
