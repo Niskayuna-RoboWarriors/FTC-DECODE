@@ -27,6 +27,7 @@ import com.pedropathing.telemetry.SelectableOpMode;
 import com.pedropathing.util.*;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -44,6 +45,8 @@ import java.util.List;
 public class Tuning extends SelectableOpMode {
     public static Follower follower;
 
+
+
     @IgnoreConfigurable
     static PoseHistory poseHistory;
 
@@ -52,6 +55,7 @@ public class Tuning extends SelectableOpMode {
 
     @IgnoreConfigurable
     static ArrayList<String> changes = new ArrayList<>();
+
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(5);
     public static MecanumConstants driveConstants = new MecanumConstants()
@@ -72,6 +76,7 @@ public class Tuning extends SelectableOpMode {
     }
 
     public Tuning() {
+
         super("Select a Tuning OpMode", s -> {
             s.folder("Localization", l -> {
                 l.add("Localization Test", LocalizationTest::new);
@@ -101,6 +106,8 @@ public class Tuning extends SelectableOpMode {
 
     @Override
     public void onSelect() {
+        hardwareMap.get(DcMotorEx.class, "forwardEncoder").setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        hardwareMap.get(DcMotorEx.class, "strafeEncoder").setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         if (follower == null) {
             follower = Constants.createFollower(hardwareMap);
             PanelsConfigurables.INSTANCE.refreshClass(this);

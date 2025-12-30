@@ -29,7 +29,7 @@ public class selfCorrectingShapesAUTON extends LinearOpMode {
     PathState pathState;
 
     private final Pose startPose = new Pose(20.13157894736842,126.23684210526316, Math.toRadians(138));
-    private final Pose shootPose = new Pose(27.236842105263158, 115.10526315789473, Math.toRadians(138));
+    private final Pose shootPose = new Pose(21.13157894736842, 126.23684210526316, Math.toRadians(138));
 
     private PathChain driveStartPosToShootPos;
 
@@ -72,6 +72,8 @@ public class selfCorrectingShapesAUTON extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+        waitForStart();
 
         opModeTimer.resetTimer();
         setPathState(pathState);

@@ -10,8 +10,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
-@TeleOp(name = "streamCamera", group = "Vision")
-public class streamCamera extends LinearOpMode {
+@TeleOp(name = "streamCameraBW", group = "Vision")
+public class streamCameraBW extends LinearOpMode {
 
     private VisionPortal visionPortal;
     private AprilTagProcessor aprilTag;

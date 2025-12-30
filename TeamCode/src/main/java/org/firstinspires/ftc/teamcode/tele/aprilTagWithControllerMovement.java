@@ -134,7 +134,7 @@ public class aprilTagWithControllerMovement extends LinearOpMode {
             ElapsedTime timer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
             timer.reset();
             double y = -gamepad1.left_stick_y;
-            double x = -gamepad1.left_stick_x;
+            double x = gamepad1.left_stick_x;
             double rx = gamepad1.right_stick_x;
             if (Math.abs(y) < joyStickZero) {
                 y = 0;
