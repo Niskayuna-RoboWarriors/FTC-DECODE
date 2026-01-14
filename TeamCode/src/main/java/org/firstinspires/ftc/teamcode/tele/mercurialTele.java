@@ -11,6 +11,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.tele.subsystems.Localizer;
 import org.firstinspires.ftc.teamcode.tele.subsystems.MecanumDrive;
 import org.firstinspires.ftc.teamcode.tele.subsystems.OdometryLocalizer;
@@ -57,9 +58,10 @@ public class mercurialTele {
                 (driveState, message) -> message,
                 driveState -> match(driveState)
                         .branch(DriveState.driver,
-                                exec(() -> {
-
-                                }))
+                                sequence(
+                                        exec(() -> drive.joystick(imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS), imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate)),
+                                        exec(drive::update)
+                            ))
                         .branch(DriveState.path,
                                 sequence(
                                         exec(() -> {
@@ -72,7 +74,7 @@ public class mercurialTele {
         ctx.schedule(actor);
         
 
-
+/*
         ctx.bindSpawn(
                 // we can use the rising edge function to add a filter to the condition:
                 // this only runs once when we press `gamepad1.a`, not every loop that it is pressed
@@ -83,16 +85,17 @@ public class mercurialTele {
                         exec(() -> motor.setPower(1))
                 )
         );
-
+*/
         // as long as gamepad1.a continues to return true,
         // the loop will continue to run
         // once it returns false,
-        // the loop will be cancelled
+        /* the loop will be cancelled
         ctx.bindWhileTrue(
                 () -> ctx.gamepad1().a,
                 loop(exec(() -> motor.setPower(1)))
         );
 
+         */
         // we have some common utility functions we have seen in LinearOpMode
         // wait for start will run the scheduler until start is pressed
         ctx.waitForStart();

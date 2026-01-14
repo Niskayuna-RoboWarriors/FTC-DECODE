@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.tele.subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.util.Range;
 
 public class MotorVelocityController {
     DcMotorEx motor;
@@ -16,14 +17,15 @@ public class MotorVelocityController {
     }
 
     public void setTarget(double target) {
-        pid.setTarget(target);
+        pid.setTarget(Range.scale(target, -1, 1, -6000, 6000));
     }
 
-    public void update() {
-        if (Math.abs(prevPower-pid.pid(motor.getVelocity(), dt)) > ) {
-            if (Math.abs(frontLeftPower) < motorStopTryingThreshold) frontLeftPower = 0;
-            frontLeft.setPower(frontLeftPower);
-            pFrontLeftPower = frontLeftPower;
+    public void update(double dt) {
+        double power = pid.pid(motor.getVelocity(), dt);
+        if (Math.abs(prevPower-power) > 0.01) {
+            if (Math.abs(power) < 0.01) power = 0;
+            motor.setPower(power);
+            prevPower = power;
         }
     }
 }
