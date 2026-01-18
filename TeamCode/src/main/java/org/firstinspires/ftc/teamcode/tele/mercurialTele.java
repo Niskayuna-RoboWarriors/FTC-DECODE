@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.tele;
 
 import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.exec;
+import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.ifHuh;
 import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.loop;
 import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.match;
 import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.sequence;
@@ -16,6 +17,7 @@ import org.firstinspires.ftc.teamcode.tele.subsystems.Localizer;
 import org.firstinspires.ftc.teamcode.tele.subsystems.MecanumDrive;
 import org.firstinspires.ftc.teamcode.tele.subsystems.OdometryLocalizer;
 import org.firstinspires.ftc.teamcode.tele.subsystems.Pose;
+import org.firstinspires.ftc.teamcode.tele.subsystems.Turret;
 
 import dev.frozenmilk.dairy.mercurial.continuations.Actors;
 import dev.frozenmilk.dairy.mercurial.continuations.Closure;
@@ -48,6 +50,7 @@ public class mercurialTele {
         imu.resetYaw();
         //Localizer localizer = new OdometryLocalizer(ctx, new Pose(0, 0, 0), imu);
         MecanumDrive drive = new MecanumDrive(ctx);
+        Turret turret = new Turret(ctx);
 
         enum DriveState {
             driver,
@@ -58,10 +61,12 @@ public class mercurialTele {
                 (driveState, message) -> message,
                 driveState -> match(driveState)
                         .branch(DriveState.driver,
-                                sequence(
-                                        exec(() -> drive.joystick(imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS), imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate)),
-                                        exec(drive::update)
-                            ))
+                                ifHuh(
+                                        () -> ctx.gamepad1().a,
+                                        exec(() -> driveState.set(DriveState.path))
+                                ).elseHuh(
+                                        exec(() -> drive.joystick(imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS), imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate))
+                                ))
                         .branch(DriveState.path,
                                 sequence(
                                         exec(() -> {
@@ -72,7 +77,9 @@ public class mercurialTele {
                         .assertExhaustive()
         );
         ctx.schedule(actor);
-        
+
+        ctx.schedule(loop(exec(drive::update)));
+        ctx.schedule(loop(exec(turret::update)));
 
 /*
         ctx.bindSpawn(

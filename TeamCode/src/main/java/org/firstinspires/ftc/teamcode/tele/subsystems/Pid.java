@@ -22,6 +22,3 @@ public class Pid {
         return Kp * error + Kd * de_dt + Ki * this.integral;
     }
 }
-
-// Kp, Kd, Ki
-//

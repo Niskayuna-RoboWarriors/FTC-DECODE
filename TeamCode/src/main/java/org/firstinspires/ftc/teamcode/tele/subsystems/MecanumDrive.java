@@ -34,10 +34,10 @@ public class MecanumDrive {
         brm.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         flm.setDirection(DcMotorEx.Direction.REVERSE);
         blm.setDirection(DcMotorEx.Direction.REVERSE);
-        fl = new MotorVelocityController(flm, 1, 0);
-        fr = new MotorVelocityController(frm, 1, 0);
-        bl = new MotorVelocityController(blm, 1, 0);
-        br = new MotorVelocityController(brm, 1, 0);
+        fl = new MotorVelocityController(ctx, flm, 1, 0);
+        fr = new MotorVelocityController(ctx, frm, 1, 0);
+        bl = new MotorVelocityController(ctx, blm, 1, 0);
+        br = new MotorVelocityController(ctx, brm, 1, 0);
     }
 
     public void joystick(double angle, float angularVelocity) {
